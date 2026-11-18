@@ -1,42 +1,44 @@
-# Task Manager API
+# API de gestión de tareas
 
 ![CI](https://github.com/Drabenq/task-manager-api/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 
-REST API to create, filter and track tasks. Built with **FastAPI**, **SQLAlchemy 2.0** and **Pydantic v2**, covered by **pytest** with a 90% coverage gate, and shipped as a **Docker** image that CI smoke-tests on every push.
+API REST para crear, filtrar y seguir tareas. Hecha con **FastAPI**, **SQLAlchemy 2.0** y **Pydantic v2**,
+con tests en **pytest** que exigen 90 % de cobertura, y empaquetada como imagen de **Docker** que el CI prueba
+en cada push.
 
-## Features
+## Funcionalidades
 
-- Full CRUD for tasks with partial updates (`PATCH` only changes the fields you send)
-- Filters by status and priority, case-insensitive search and pagination
-- `/tasks/stats` endpoint with counts per status and overdue tasks
-- Input validation: blank titles, length limits, invalid enums and past due dates return `422`
-- Interactive docs at `/docs` (Swagger UI), generated from the code
+- CRUD completo de tareas con actualización parcial (`PATCH` solo cambia los campos que mandás)
+- Filtros por estado y prioridad, búsqueda sin distinguir mayúsculas y paginación
+- Endpoint `/tasks/stats` con cantidad de tareas por estado y tareas vencidas
+- Validaciones: títulos vacíos, largos máximos, valores inválidos y fechas límite pasadas devuelven `422`
+- Documentación interactiva en `/docs` (Swagger UI), generada a partir del código
 
 ## Endpoints
 
-| Method | Path | Description |
+| Método | Ruta | Descripción |
 |--------|------|-------------|
 | `GET` | `/health` | Health check |
-| `POST` | `/tasks` | Create a task |
-| `GET` | `/tasks?status=&priority=&q=&skip=&limit=` | List and filter tasks |
-| `GET` | `/tasks/stats` | Counts by status and overdue tasks |
-| `GET` | `/tasks/{id}` | Get one task |
-| `PATCH` | `/tasks/{id}` | Update some fields |
-| `DELETE` | `/tasks/{id}` | Delete a task |
+| `POST` | `/tasks` | Crear una tarea |
+| `GET` | `/tasks?status=&priority=&q=&skip=&limit=` | Listar y filtrar tareas |
+| `GET` | `/tasks/stats` | Cantidades por estado y tareas vencidas |
+| `GET` | `/tasks/{id}` | Ver una tarea |
+| `PATCH` | `/tasks/{id}` | Modificar algunos campos |
+| `DELETE` | `/tasks/{id}` | Borrar una tarea |
 
-## Run it
+## Correrlo
 
 ```bash
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python -m venv .venv && source .venv/bin/activate   # en Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 ```
 
-Open http://localhost:8000/docs
+Abrí http://localhost:8000/docs
 
-With Docker:
+Con Docker:
 
 ```bash
 docker build -t task-manager-api .
@@ -49,20 +51,25 @@ docker run -p 8000:8000 task-manager-api
 pytest
 ```
 
-Each test runs against its own in-memory SQLite database (`tests/conftest.py`), so tests are isolated and can run in any order. The suite covers happy paths, validation errors (parametrized), 404s, filters, pagination and the stats logic.
+Cada test corre contra su propia base SQLite en memoria (`tests/conftest.py`), así que los tests están aislados
+y se pueden correr en cualquier orden. Cubren los casos felices, errores de validación (parametrizados), 404,
+filtros, paginación y la lógica de estadísticas.
 
-## Project structure
+## Estructura
 
 ```
 app/
-  main.py       # routes and HTTP concerns (status codes, 404s)
-  crud.py       # database queries, no HTTP code here
-  schemas.py    # request/response models and validation rules
-  models.py     # SQLAlchemy table definition
-  database.py   # engine, session and the get_db dependency
-tests/          # pytest suite
+  main.py       # rutas y lo que es HTTP (códigos de estado, 404)
+  crud.py       # consultas a la base, sin nada de HTTP
+  schemas.py    # modelos de entrada/salida y reglas de validación
+  models.py     # definición de la tabla con SQLAlchemy
+  database.py   # engine, sesión y la dependencia get_db
+tests/          # tests con pytest
 ```
+
+Explicación más detallada, con preguntas típicas de entrevista: [docs/como-funciona.md](docs/como-funciona.md).
 
 ## CI
 
-GitHub Actions runs the tests with coverage, then builds the Docker image, starts the container and checks `/health`.
+GitHub Actions corre los tests con cobertura, después arma la imagen de Docker, levanta el contenedor y
+chequea `/health`.
